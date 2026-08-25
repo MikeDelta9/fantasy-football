@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.yahoo_token.json
+data/raw/
+data/snapshots/*.json
+!data/snapshots/.gitkeep
+.pytest_cache/
+.ruff_cache/
+.DS_Store

@@ -1,0 +1,61 @@
+# fantasy-football
+
+League tooling for moving a dynasty/redraft league off Sleeper and onto Yahoo,
+plus FantasyPros projection work once the league is live.
+
+## Quick start
+
+```bash
+cd ~/projects/fantasy-football
+cp .env.example .env          # fill in as you go
+uv sync
+uv run ff status              # shows what's still missing
+```
+
+## The migration, end to end
+
+```bash
+uv run ff sleeper pull                     # snapshot the Sleeper league
+uv run ff yahoo login                      # one-time OAuth (see docs/yahoo-setup.md)
+uv run ff yahoo leagues                    # find your YAHOO_LEAGUE_KEY
+uv run ff yahoo verify-mapping             # sanity-check stat ids for this season
+uv run ff yahoo pull                       # snapshot Yahoo league settings
+uv run ff diff --out docs/change-list.md   # what to change in Yahoo
+```
+
+`ff diff` reads the newest snapshots in `data/snapshots/`; add `--live` to pull
+fresh from both platforms instead.
+
+## Why the last step is manual
+
+Yahoo's Fantasy Sports API is **read-only for league settings**. Its write
+scopes cover rosters, add/drops, trades and draft picks — nothing that sets
+stat categories or point values. `ff diff --out` therefore produces an ordered
+change-list you apply in *League Settings → Edit League Settings → Modify Stat
+Categories*. See `docs/league-migration.md` for the browser-automation option.
+
+## Layout
+
+```
+src/ff/
+  config.py            .env-backed settings, paths
+  cli.py               the `ff` command
+  sleeper/client.py    public read-only API
+  yahoo/auth.py        OAuth2 + token refresh
+  yahoo/client.py      Fantasy Sports API + JSON flattener
+  fantasypros/client.py  projections/rankings, cached to data/raw
+  scoring/mapping.py   canonical categories <-> Sleeper keys <-> Yahoo stat ids
+  scoring/normalize.py both platforms -> {canonical_key: points}
+  scoring/diff.py      comparison, with an "unportable" status
+  scoring/report.py    terminal table + markdown change-list
+data/snapshots/        timestamped API pulls (gitignored)
+data/raw/              FantasyPros response cache (gitignored)
+docs/                  setup guides, migration runbook, decisions
+```
+
+## Tests
+
+```bash
+uv run pytest
+uv run ruff check
+```
