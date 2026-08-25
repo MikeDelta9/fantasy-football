@@ -61,8 +61,8 @@ Sleeper scoring rules with no Yahoo counterpart:
 - **2-point conversions** are one combined Yahoo category (stat id 16) where
   Sleeper splits pass/rush/rec. Yahoo's value has to cover all three.
 
-Record whatever you decide in `docs/decisions/` so next season's diff doesn't
-re-litigate it.
+Record whatever you decide in `_project/DECISIONS.md` ("Scoring rules that could
+not be ported") so next season's diff doesn't re-litigate it.
 
 ## If you want the edits automated
 
