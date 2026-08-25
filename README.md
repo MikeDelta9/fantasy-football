@@ -50,8 +50,13 @@ src/ff/
   scoring/report.py    terminal table + markdown change-list
 data/snapshots/        timestamped API pulls (gitignored)
 data/raw/              FantasyPros response cache (gitignored)
-docs/                  setup guides, migration runbook, decisions
+docs/                  setup guides and runbooks
+_project/              durable knowledge — context, progress, decisions,
+                       learnings, threads, operations registry
+seasons/2026/          season work: migration, draft, weeks, deliverables
 ```
+
+See `CLAUDE.md` or the `ff-context` skill for which file owns which kind of fact.
 
 ## Tests
 

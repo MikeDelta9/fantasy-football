@@ -44,7 +44,7 @@ Direction of travel: **Sleeper is the source of truth, Yahoo is the target.**
 - **Sleeper has scoring concepts Yahoo lacks** (positional PPR premiums,
   yardage-threshold bonuses, forced fumbles). Those get status `unportable`, not
   `missing_in_target` — they need a decision, not an edit. Log the decision in
-  `docs/decisions/`.
+  `_project/DECISIONS.md`.
 
 ## Context system
 
