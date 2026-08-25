@@ -1,0 +1,19 @@
+{
+  "projectName": "Fantasy Football",
+  "projectType": "personal",
+  "progressFile": "_project/PROGRESS.md",
+  "statusFile": "seasons/2026/SEASON_INDEX.md",
+  "docs": {
+    "context": "_project/PROJECT_CONTEXT.md",
+    "decisions": "_project/DECISIONS.md",
+    "learnings": "_project/LEARNINGS.md",
+    "operations": "_project/operations/REGISTRY.md"
+  },
+  "memoryCompiler": "/Users/michaeldebrey/fantasy-memory-compiler",
+  "saveCommand": "/ffSave",
+  "contextSkill": "ff-context",
+  "git": {
+    "commitFormat": "conventional",
+    "autoPush": false
+  }
+}

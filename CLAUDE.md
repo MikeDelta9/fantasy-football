@@ -46,6 +46,36 @@ Direction of travel: **Sleeper is the source of truth, Yahoo is the target.**
   `missing_in_target` — they need a decision, not an edit. Log the decision in
   `docs/decisions/`.
 
+## Context system
+
+Load the **`ff-context`** skill before working here — it maps where knowledge lives.
+The short version:
+
+| Kind of fact | Owner |
+|---|---|
+| Current status of anything | `seasons/<year>/SEASON_INDEX.md` — **the only place** |
+| What happened, in order | `_project/PROGRESS.md` |
+| Standing decisions | `_project/DECISIONS.md` |
+| Platform traps | `_project/LEARNINGS.md` |
+| How scoring travels Sleeper→Yahoo | `_project/threads/scoring-and-settings.md` |
+| What this project can do | `_project/operations/REGISTRY.md` |
+| Week-by-week decisions | `seasons/<year>/weeks/week-NN.md` |
+| Things league members read | `seasons/<year>/deliverables/` |
+
+Rules that keep it from rotting:
+
+- **One place per fact.** If status appears outside the season index, that's a bug.
+- **Threads are maps, not stores** — no status in them, ever.
+- **Label claims** in threads and learnings: `verified (date)` · `asserted` · `doc`.
+  Unlabelled means unverified.
+- The scoring table inside `ff-context/SKILL.md` is **generated**. Regenerate with
+  `python3 ~/.claude/skills/ff-context/scripts/build_scoring_table.py --write`;
+  never hand-edit it.
+
+Save with **`/ffSave`** — it updates the durable files, commits, and flushes the
+conversation to `~/fantasy-memory-compiler` (this project's own knowledge base, kept
+separate from the ACT client one).
+
 ## Conventions
 
 - Snapshots go to `data/snapshots/<source>-<UTC timestamp>.json` and are
