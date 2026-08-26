@@ -26,7 +26,8 @@ hand at each hop to match the Yahoo original, so this diff is a **drift check**,
 | Diff re-run clean | ✅ as clean as it gets | the 5 remaining rows are the accepted exceptions in DECISIONS.md, not work |
 | Non-scoring settings compared | ✅ done | **all settings compared 2026-08-25** — scoring, season/playoffs, trades, waivers, roster slots. Roster is an exact match. All settings changes applied and verified 2026-08-25 (veto votes 6, postponed-game status Yes, trade deadline wk 11). Open decision: Can't Cut List |
 | League informed of changes | ⬜ not started | 3 real changes to announce: INT -1→-2, 60+ FG 6→5, forced fumbles gone |
-| Draft | ⬜ not started | |
+| Draft prep | 🟡 in progress | Custom-scored board built (`ff draft board`). Live pick-polling still to do |
+| Draft | ⬜ not started | **Sun Aug 30, 9:30pm EDT** |
 
 ## Key dates
 
@@ -59,12 +60,20 @@ exact matches and one real difference (interceptions), resolved in Yahoo's favou
 See `_project/DECISIONS.md` for the three accepted exceptions.
 
 **Next steps, in order:**
-1. Tell the league the 3 real changes (INT -2, 60+ FG pays 5, no forced-fumble points)
-   — draft is Sunday, so this wants saying before then.
-2. ~~Apply for Yahoo Fantasy API access~~ — **submitted 2026-08-25**, awaiting Yahoo.
-   If granted with write, change `SCOPE` in `src/ff/yahoo/auth.py` from `fspt-r` to
-   `fspt-w` and re-run `ff yahoo login`.
-3. FantasyPros key, then draft prep.
+1. **Run a Yahoo mock draft** (`/f1/<league-id>/mock_lobby`, ~20 min, any evening
+   before Sunday). This is the only way to see the live draft-room DOM and its XHR
+   feed before draft night. Instrument `fetch`/`XHR` *before* picks start — installing
+   the hook late misses the calls. Then build `ff draft watch` against what it shows.
+2. Tell the league the 3 real changes (INT -2, 60+ FG pays 5, no forced-fumble points),
+   plus no keeper slot and no consolation bracket. Draft is Sunday.
+   Draft in `seasons/2026/deliverables/scoring-changes-2026.md`.
+3. Awaiting Yahoo's API decision (applied 2026-08-25). If granted with write, change
+   `SCOPE` in `src/ff/yahoo/auth.py` from `fspt-r` to `fspt-w` and re-run
+   `ff yahoo login`.
+
+**Draft board:** `uv run ff draft board --out <file>`. Published (private) at
+`claude.ai/code/artifact/1dae4ef8-29e6-4470-899b-e9de2b5fc09a` — keep it private, it
+embeds FantasyPros data. Manual pick-marking works today; polling is step 1 above.
 
 _Superseded — kept for the record:_ register the Yahoo dev app (`docs/yahoo-setup.md`) — `ff status` shows
 `YAHOO_CLIENT_ID`/`SECRET` still empty, and nothing Yahoo-side can run without them.

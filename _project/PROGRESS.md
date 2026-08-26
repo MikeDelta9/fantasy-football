@@ -128,3 +128,26 @@ the season index. This file is the story, not the state.
 - **FantasyPros is not an alternative route to Yahoo.** It serves player-level data
   (projections, rankings, ADP); their Yahoo league sync runs on their own approved
   credentials inside their own product and is not re-exposed through their API.
+
+## 2026-08-25 (cont.) — FantasyPros wired up, draft board built
+
+- HOF subscription live; key in `.env`. Confirmed the thing the whole plan rested on:
+  **projections return component stats**, so they can be rescored under our rules
+  instead of trusted at FantasyPros' half-PPR baseline.
+- The gap is large and systematic. Our 6-pt pass TD / -2 INT reprices every QB:
+  Josh Allen +44 pts over what consensus assumes, Stafford +59. It also reorders them,
+  since -2 punishes turnover-prone QBs — Hurts (7.4 INTs) passes Daniels (11.0).
+  Josh Allen sits at consensus rank 26 and ranks top-4 on our board.
+- Built `ff draft board`: component projections -> league scoring -> replacement level
+  -> tiers -> surplus over what the position yields at your next pick. Renders a
+  self-contained page that leads with a recommendation, not a table, because a table
+  is unusable on a one-minute pick clock.
+- Two bugs worth remembering, both caught before they mattered: scoring initially read
+  the **Sleeper** snapshot (INT -1) rather than Yahoo (-2), which would have mispriced
+  every QB; and availability was read for peers in the same pass that computed it,
+  leaving later peers at the default 1.0 and scrambling the ordering.
+- Deliberately **not** a copy of FantasyPros' Draft Assistant. That ranks best-available
+  under consensus scoring; this one exists for where consensus is wrong for us.
+- **Open, and the reason we stop here:** pick tracking is manual, which is unusable at
+  192 picks. Polling needs the live draft room, which does not exist until Sunday.
+  A mock draft is the only way to build it ahead of time.

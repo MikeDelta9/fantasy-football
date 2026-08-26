@@ -29,18 +29,28 @@ everything below is a consumer of it.
 
 | Operation | What it answers | Inputs | Status |
 |---|---|---|---|
-| Custom-scored projections | "What is this player actually worth in *our* league?" | FantasyPros stat projections + our scoring settings | idea |
-| Positional value curves / VORP | "Where does the drop-off make a position scarce?" | custom-scored projections + roster slots | idea |
-| Cheat sheet / tiers | Draft board tiered by our scoring, not PPR defaults | custom-scored projections | idea |
+| Custom-scored projections | "What is this player actually worth in *our* league?" | FantasyPros stat projections + our scoring settings | **built** — `ff/draft/score.py` |
+| Positional value curves / VORP | "Where does the drop-off make a position scarce?" | custom-scored projections + roster slots | **built** — `ff/draft/board.py`, flex demand allocated to whoever wins the slots |
+| Cheat sheet / tiers | Draft board tiered by our scoring, not PPR defaults | custom-scored projections | **built** — tiers break on unusual drop-off |
 
 ## Draft
 
 | Operation | What it answers | Inputs | Status |
 |---|---|---|---|
-| ADP vs value gap | "Who goes later than they're worth in our format?" | ADP + custom-scored projections | idea |
-| Draft simulator | "If I take X here, what's likely there next round?" | ADP distributions + roster needs | idea |
-| Keeper valuation | "Is this keeper worth its round cost?" | keeper rules + projections | idea |
-| Live draft assistant | Best available by our values, during the draft | draft state + tiers | idea |
+| ADP vs value gap | "Who goes later than they're worth in our format?" | consensus rank (no ADP endpoint on our plan) + custom-scored projections | **built** — the "Where consensus is wrong" view |
+| Draft simulator | "If I take X here, what's likely there next round?" | consensus rank + expert spread + roster needs | **partly built** — surplus already prices "what will still be there next pick" |
+| ~~Keeper valuation~~ | n/a — Yahoo offers no keeper setting on this league type | | dropped 2026-08-25 |
+| Live draft assistant | Best available by our values, during the draft | draft state + tiers | **half-built** — page and recommendation work; pick tracking is manual until the draft room can be polled |
+
+### Added 2026-08-25
+
+| Operation | What it answers | Inputs | Status |
+|---|---|---|---|
+| Draft-room polling | "Who has been taken, without me typing it" | Yahoo draft client DOM or its XHR feed | idea — blocked until a live/mock draft exists to inspect |
+| Waiver priority valuation | "Is this player worth burning priority #3?" | rolling waiver position + rest-of-season projections | idea — the biggest unserved edge; FantasyPros assumes FAAB |
+| Win-probability lineup | "Maximise P(win), not expected points" | weekly projections + spread + opponent roster | idea — H2H wants variance shaped by whether you are favoured |
+| Playoff-window SOS | "Who is good in weeks 15-17 specifically" | schedule + defensive rankings | idea |
+| Opponent modelling | "How do my 11 leaguemates actually behave?" | logged picks, waivers, trades over time | idea — no product can know this |
 
 ## In-season
 

@@ -49,6 +49,12 @@ An unlabelled claim is unverified.
 - **There is no secret-rotation button.** The app page shows the Client Secret
   permanently but offers only Delete App. *verified 2026-08-25 (observed).*
 
+- **The Yahoo draft room does not exist before draft day.** `/f1/<id>/draftclient`
+  404s and `/f1/<id>/draftresults` serves an empty shell, so a pick-polling parser
+  cannot be written or tested ahead of time except against a **mock draft**
+  (`/f1/<id>/mock_lobby`). Yahoo's bot-only Instant Mock is behind Yahoo Plus.
+  *verified 2026-08-25.*
+
 ## Sleeper API
 
 - **Public and unauthenticated**, and read-only outright — there is no write path at
@@ -92,6 +98,24 @@ An unlabelled claim is unverified.
 
 - **The key is metered**, so responses cache to `data/raw/`. Leave caching on unless
   deliberately refreshing. *doc.*
+- **Projections come back as component stats, not just fantasy points** — `pass_yds`,
+  `pass_tds`, `pass_ints`, `rec_rec`, and so on, alongside a `points_half` baseline.
+  This is what makes custom scoring possible; if it were pre-scored only, the whole
+  custom-valuation idea would collapse. *verified 2026-08-25.*
+- **Premium limits are 1 request/second and 500/day.** Enough for analysis, nowhere
+  near enough to poll during a live draft. Anything live has to come from the browser,
+  not this API. *doc — stated on the key page.*
+- **There is no ADP endpoint on this plan** (`/nfl/{season}/adp` returns 403). The
+  consensus-rankings endpoint carries `rank_ecr` plus `rank_min`/`max`/`ave`/`std`,
+  and the spread is arguably better than ADP for judging whether a player survives to
+  your next pick. *verified 2026-08-25.*
+- **The rankings endpoint also carries `player_yahoo_id`**, which is the bridge to
+  Yahoo rosters if API access is ever granted. *verified 2026-08-25.*
+- **Kickers cannot be custom-scored.** FantasyPros projects one `fg` total with no
+  distance split, so a 3/3/3/4/5 tier structure cannot be applied. `ff/draft/score.py`
+  uses a blended value and flags it. *verified 2026-08-25.*
+- **Their terms forbid redistribution.** Data stays in gitignored `data/raw/`, and the
+  published draft board must stay private. *doc.*
 
 ## This repo
 
