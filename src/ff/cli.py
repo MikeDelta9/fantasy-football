@@ -204,6 +204,53 @@ def diff_cmd(
         console.print(f"\n[green]change-list written to {out}[/green]")
 
 
+draft_app = typer.Typer(help="Draft prep and the live draft board.")
+app.add_typer(draft_app, name="draft")
+
+
+@draft_app.command("board")
+def draft_board(
+    season: int = typer.Option(2026, help="NFL season"),
+    out: Path = typer.Option(Path("draft-board.html"), "--out", help="Where to write the page"),
+    refresh: bool = typer.Option(False, "--refresh", help="Ignore the FantasyPros cache"),
+) -> None:
+    """Build the live draft board, priced in this league's scoring.
+
+    Deliberately not a copy of FantasyPros' assistant: that ranks best-available
+    under consensus scoring. This prices every player under OUR rules and
+    surfaces where the two disagree.
+    """
+    from .draft.export import merge_rankings, render, to_rows
+    from .draft.score import load_league_scoring, load_projections
+    from .fantasypros.client import FantasyProsClient
+
+    scoring = load_league_scoring()
+    with FantasyProsClient(cache=not refresh) as fp:
+        players = load_projections(fp, season, scoring)
+        rankings = fp.rankings(season, week="draft", position="ALL", scoring="HALF")
+
+    merge_rankings(players, rankings)
+    rows = to_rows(players)
+    matched = sum(1 for r in rows if r["ecr"] is not None)
+
+    template = (Path(__file__).parent / "draft" / "template.html").read_text()
+    meta = {
+        "league": "DeBrey's League",
+        "scoring": "0.5 PPR, 6-pt pass TD, -2 INT",
+        "footnote": (
+            f"{len(rows)} players priced under this league's scoring; {matched} matched to "
+            "consensus ranks. Surplus = value over replacement minus what this position is "
+            "expected to yield at your next pick, so it already accounts for waiting. "
+            "Availability is modelled from expert rank disagreement and is the softest number "
+            "here; treat it as a lean, not a fact. Kicker values are approximate: FantasyPros "
+            "projects one field-goal total with no distance split."
+        ),
+    }
+    out.write_text(render(rows, template, meta))
+    console.print(f"[green]{len(rows)} players[/green] -> {out}")
+    console.print(f"[dim]{matched} matched to consensus ranks.[/dim]")
+
+
 @app.command("status")
 def status() -> None:
     """Show which credentials are configured."""

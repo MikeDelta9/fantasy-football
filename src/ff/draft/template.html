@@ -1,0 +1,443 @@
+<title>Draft Room Edge</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F4F6F5; --surface:#FFFFFF; --surface-2:#EDF1EF;
+  --ink:#101614; --muted:#5A6763; --line:#DFE4E2;
+  --accent:#0F6E5C; --accent-soft:#DCEDE8;
+  --signal:#8A5210; --signal-bg:#FBF0DC; --signal-line:#E4C288;
+  --good:#1F7A4D; --warn:#8F5A0C; --bad:#A33A2A;
+  --qb:#7A4BAE; --rb:#1F7A4D; --wr:#1D5FA8; --te:#B05A17; --k:#616E69; --def:#8A3C52;
+  --radius:5px;
+  --shadow:0 1px 2px rgba(16,22,20,.06), 0 8px 20px -12px rgba(16,22,20,.18);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C110F; --surface:#141B19; --surface-2:#1B2422;
+    --ink:#E9EEEC; --muted:#93A29D; --line:#26332F;
+    --accent:#43C0A3; --accent-soft:#14302A;
+    --signal:#E6AE5E; --signal-bg:#2A2015; --signal-line:#5C4526;
+    --good:#4FBE86; --warn:#D9A055; --bad:#E0705C;
+    --qb:#B08BDA; --rb:#5FC08E; --wr:#6AA6E0; --te:#DC9155; --k:#93A29D; --def:#D3798F;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 24px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C110F; --surface:#141B19; --surface-2:#1B2422;
+  --ink:#E9EEEC; --muted:#93A29D; --line:#26332F;
+  --accent:#43C0A3; --accent-soft:#14302A;
+  --signal:#E6AE5E; --signal-bg:#2A2015; --signal-line:#5C4526;
+  --good:#4FBE86; --warn:#D9A055; --bad:#E0705C;
+  --qb:#B08BDA; --rb:#5FC08E; --wr:#6AA6E0; --te:#DC9155; --k:#93A29D; --def:#D3798F;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 24px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:14px; line-height:1.5;
+}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px; margin:0 auto; padding:18px 20px 64px}
+
+/* ---- header ---- */
+header{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+h1{
+  font-family:"Barlow Condensed",Impact,sans-serif; font-weight:700;
+  font-size:30px; letter-spacing:.02em; text-transform:uppercase; margin:0;
+}
+.sub{color:var(--muted); font-size:13px}
+.spacer{flex:1}
+
+/* ---- pick bar ---- */
+.pickbar{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:12px 14px; margin-bottom:16px; box-shadow:var(--shadow);
+}
+.field{display:flex; flex-direction:column; gap:4px}
+label{font-size:10.5px; letter-spacing:.10em; text-transform:uppercase; color:var(--muted); font-weight:600}
+input[type=number],input[type=text]{
+  font:inherit; padding:6px 9px; border:1px solid var(--line); border-radius:4px;
+  background:var(--ground); color:var(--ink); width:88px;
+}
+input[type=text]{width:280px}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+button{
+  font:inherit; font-weight:600; padding:6px 12px; border-radius:4px; cursor:pointer;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
+}
+button:hover{border-color:var(--accent)}
+button.ghost{background:transparent}
+
+/* ---- recommendation ---- */
+.decision{display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:14px; margin-bottom:22px}
+@media (max-width:860px){.decision{grid-template-columns:1fr}}
+.take{
+  background:var(--signal-bg); border:1px solid var(--signal-line);
+  border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow);
+}
+.take .eyebrow{
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--signal); font-weight:600; margin-bottom:2px;
+}
+.take .who{
+  font-family:"Barlow Condensed",Impact,sans-serif; font-weight:700;
+  font-size:40px; line-height:1.02; letter-spacing:.01em; text-wrap:balance; margin:2px 0 6px;
+}
+.take .meta{color:var(--muted); font-size:12.5px; margin-bottom:10px}
+.why{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.why li{padding-left:15px; position:relative; font-size:13px}
+.why li::before{content:"\25B8"; position:absolute; left:0; color:var(--signal)}
+.alts{display:flex; flex-direction:column; gap:8px}
+.alt{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:9px 12px; display:flex; align-items:center; gap:10px;
+}
+.alt .nm{font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.alt .sp{font-size:12.5px; color:var(--muted)}
+
+/* ---- position chips ---- */
+.pos{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600;
+  padding:2px 5px; border-radius:3px; color:#fff; letter-spacing:.04em;
+}
+.pos.QB{background:var(--qb)} .pos.RB{background:var(--rb)} .pos.WR{background:var(--wr)}
+.pos.TE{background:var(--te)} .pos.K{background:var(--k)} .pos.DEF{background:var(--def)}
+
+/* ---- roster ---- */
+.roster{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px}
+.slot{
+  border:1px dashed var(--line); border-radius:4px; padding:5px 9px;
+  font-size:12px; color:var(--muted); background:var(--surface);
+}
+.slot.filled{border-style:solid; color:var(--ink); border-color:var(--accent); background:var(--accent-soft)}
+.slot b{font-weight:600}
+
+/* ---- table ---- */
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:820px}
+th{
+  text-align:right; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); font-weight:600; padding:9px 10px;
+  border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--surface); z-index:2;
+}
+th:first-child,td:first-child{text-align:left}
+th.l,td.l{text-align:left}
+td{padding:7px 10px; border-bottom:1px solid var(--line); text-align:right}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+tr.gone td{opacity:.32; text-decoration:line-through}
+tr.mine{background:var(--accent-soft)}
+tr.mine:hover{background:var(--accent-soft)}
+.tierrow td{
+  background:var(--surface-2); font-size:10.5px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); font-weight:600; padding:5px 10px;
+}
+.dim{color:var(--muted)}
+.up{color:var(--good); font-weight:600}
+.down{color:var(--bad); font-weight:600}
+.flagcell{white-space:nowrap}
+.flag{
+  font-size:10px; font-weight:600; letter-spacing:.05em; padding:1px 5px;
+  border-radius:3px; border:1px solid currentColor; text-transform:uppercase;
+}
+.flag.value{color:var(--good)} .flag.reach{color:var(--bad)} .flag.cliff{color:var(--warn)}
+.mark{cursor:pointer; color:var(--muted); border:0; background:none; padding:2px 5px; font-size:15px; line-height:1}
+.mark:hover{color:var(--accent)}
+
+.note{color:var(--muted); font-size:12px; margin:22px 0 0; max-width:66ch}
+.tabs{display:flex; gap:2px; margin:22px 0 10px}
+.tab{
+  font-size:12px; font-weight:600; padding:6px 11px; border-radius:4px 4px 0 0;
+  border:1px solid transparent; background:none; color:var(--muted); cursor:pointer;
+}
+.tab[aria-selected="true"]{background:var(--surface); border-color:var(--line); border-bottom-color:var(--surface); color:var(--ink)}
+h2{font-family:"Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.03em; font-size:19px; margin:26px 0 8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Draft Room Edge</h1>
+  <span class="sub" id="leaguesub"></span>
+  <span class="spacer"></span>
+  <button class="ghost" id="reset" type="button">Reset draft</button>
+</header>
+
+<div class="pickbar">
+  <div class="field"><label for="slot">My slot</label><input type="number" id="slot" min="1" max="12" value="1"></div>
+  <div class="field"><label for="pick">Pick now</label><input type="number" id="pick" min="1" value="1"></div>
+  <div class="field"><label for="search">Mark drafted &mdash; type a name, Enter</label>
+    <input type="text" id="search" placeholder="e.g. Gibbs" autocomplete="off"></div>
+  <div class="field"><label for="mine">&nbsp;</label>
+    <button type="button" id="mine">Enter marks as MY pick</button></div>
+</div>
+
+<div class="decision">
+  <div class="take" id="take"></div>
+  <div class="alts" id="alts"></div>
+</div>
+
+<div class="roster" id="roster"></div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" data-view="board" aria-selected="true">Best available</button>
+  <button class="tab" role="tab" data-view="edge" aria-selected="false">Where consensus is wrong</button>
+</div>
+<div class="tablewrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+
+<p class="note" id="footnote"></p>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+const P = DATA.players, META = DATA.meta;
+const TEAMS = 12, FLEX = 1, BENCH = 7;
+const STARTERS = {QB:1, RB:2, WR:2, TE:1, K:1, DEF:1};
+const FLEXPOS = ["RB","WR","TE"];
+const KEY = "draftroom.v1";
+
+let state = {drafted:{}, slot:1, pick:1, view:"board", mineMode:false};
+try{ const s = localStorage.getItem(KEY); if(s) state = Object.assign(state, JSON.parse(s)); }catch(e){}
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
+
+const alive = () => P.filter(p => !state.drafted[p.name]);
+const mine  = () => P.filter(p => state.drafted[p.name] === "me");
+
+/* Replacement level: the best player at each position who starts nowhere.
+   Flex demand is allocated to whoever actually wins the flex slots. */
+function levels(pool){
+  const by = {}; pool.forEach(p => (by[p.pos] = by[p.pos] || []).push(p));
+  Object.values(by).forEach(l => l.sort((a,b) => b.pts - a.pts));
+  const demand = {}; for(const k in STARTERS) demand[k] = STARTERS[k] * TEAMS;
+  let flexPool = [];
+  FLEXPOS.forEach(pos => { flexPool = flexPool.concat((by[pos]||[]).slice(demand[pos]||0)); });
+  flexPool.sort((a,b) => b.pts - a.pts);
+  flexPool.slice(0, FLEX*TEAMS).forEach(p => demand[p.pos] = (demand[p.pos]||0) + 1);
+  const out = {};
+  for(const pos in by){
+    const l = by[pos], i = Math.min(demand[pos] ?? l.length, l.length - 1);
+    out[pos] = l.length ? l[Math.max(i,0)].pts : 0;
+  }
+  return out;
+}
+
+function nextPick(){
+  const slot = state.slot, pick = state.pick;
+  const round = Math.ceil(pick / TEAMS);
+  // snake: odd rounds ascend, even rounds descend
+  let n = pick + 1;
+  for(let r = round; r <= round + 2; r++){
+    const p = (r % 2 === 1) ? (r-1)*TEAMS + slot : r*TEAMS - slot + 1;
+    if(p > pick){ n = p; break; }
+  }
+  return n;
+}
+
+const phi = x => 0.5 * (1 + erf(x / Math.SQRT2));
+function erf(x){                       // Abramowitz & Stegun 7.1.26
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const a = [0.254829592, -0.284496736, 1.421413741, -1.453152027, 1.061405429];
+  let poly = 0, tp = t;
+  for(let i = 0; i < 5; i++){ poly += a[i] * tp; tp *= t; }
+  return s * (1 - poly * Math.exp(-x * x));
+}
+
+function availability(p, np){
+  if(p.ecr == null) return 0.5;
+  const spread = Math.max((p.std || 12) * 3, 4);
+  return 1 - phi((np - p.ecr) / spread);
+}
+
+function rosterNeed(){
+  const have = {}; mine().forEach(p => have[p.pos] = (have[p.pos]||0)+1);
+  const need = {}; for(const k in STARTERS) need[k] = STARTERS[k] - (have[k]||0);
+  const spare = FLEXPOS.reduce((s,pos) => s + Math.max(0, -(need[pos]||0)), 0);
+  if(spare < FLEX) FLEXPOS.forEach(pos => need[pos] = (need[pos]||0) + 1);
+  return need;
+}
+
+function analyse(){
+  const pool = alive(), lv = levels(pool), np = nextPick(), need = rosterNeed();
+  const c = pool.map(p => ({p, vorp: p.pts - (lv[p.pos]||0), avail: availability(p, np)}));
+  const by = {}; c.forEach(x => (by[x.p.pos] = by[x.p.pos] || []).push(x));
+  Object.values(by).forEach(l => l.sort((a,b) => b.vorp - a.vorp));
+
+  // tiers by unusual drop-off
+  Object.values(by).forEach(l => {
+    if(l.length < 3){ l.forEach(x => x.tier = 1); return; }
+    const gaps = l.slice(0,-1).map((x,i) => x.vorp - l[i+1].vorp);
+    const mean = gaps.reduce((a,b)=>a+b,0)/gaps.length;
+    const sd = Math.sqrt(gaps.reduce((a,b)=>a+(b-mean)**2,0)/gaps.length);
+    let t = 1;
+    l.forEach((x,i) => { x.tier = t;
+      if(i < gaps.length && gaps[i] >= mean + sd && gaps[i] > 0){ x.cliff = gaps[i]; t++; }
+    });
+  });
+
+  c.forEach(x => {
+    const peers = by[x.p.pos];
+    let exp = 0, surv = 1;
+    for(const q of peers.slice(0,14)){
+      const ph = (q === x) ? 0 : q.avail;
+      exp += surv * ph * q.vorp; surv *= (1 - ph);
+    }
+    x.wait = exp;
+    x.surplus = x.vorp - exp;
+    x.reasons = [];
+    if((need[x.p.pos]||0) <= 0){ x.surplus -= 25; x.covered = true; }
+    if(x.cliff){ x.surplus += Math.min(x.cliff,20)*0.5;
+      x.reasons.push(`Last of this tier \u2014 the next ${x.p.pos} down is ${x.cliff.toFixed(0)} pts worse`); }
+    if(x.p.delta > 12) x.reasons.push(`Our scoring pays him ${x.p.delta > 0 ? "+" : ""}${x.p.delta.toFixed(0)} pts more than consensus assumes`);
+    else if(x.p.delta < -8) x.reasons.push(`Consensus overrates him by ${(-x.p.delta).toFixed(0)} pts in our scoring`);
+    if(x.avail < 0.25) x.reasons.push(`Only ${(x.avail*100).toFixed(0)}% chance he lasts to your pick ${np}`);
+    else if(x.avail > 0.7) x.reasons.push(`${(x.avail*100).toFixed(0)}% chance he lasts to pick ${np} \u2014 you can probably wait`);
+    if(x.covered) x.reasons.push(`You already have your ${x.p.pos} starters &mdash; bench value only`);
+  });
+
+  c.sort((a,b) => b.surplus - a.surplus);
+  return {cands:c, byPos:by, np, need, lv};
+}
+
+/* ---------- render ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const chip = pos => `<span class="pos ${pos}">${pos}</span>`;
+// A gap near zero means our scoring agrees with consensus. That is information,
+// not a warning, so it stays neutral rather than reading as a negative.
+const gapClass = d => Math.abs(d) < 1 ? "dim" : (d > 0 ? "up" : "down");
+const gapText  = d => Math.abs(d) < 1 ? "\u2014" : (d > 0 ? "+" : "") + d.toFixed(0);
+
+function render(){
+  const {cands, byPos, np, need} = analyse();
+  const dot = " \u00B7 ";
+  document.getElementById("leaguesub").textContent =
+    META.league + dot + META.scoring + dot + `pick ${state.pick}, your next is ${np}`;
+
+  const top = cands[0];
+  const take = document.getElementById("take");
+  if(!top){ take.innerHTML = "<div class='eyebrow'>Board empty</div>"; }
+  else{
+    take.innerHTML = `
+      <div class="eyebrow">Take now &mdash; pick ${state.pick}</div>
+      <div class="who">${esc(top.p.name)}</div>
+      <div class="meta">${chip(top.p.pos)} ${esc(top.p.team)}${top.p.bye ? " &middot; bye "+top.p.bye : ""}
+        &middot; <span class="num">${top.p.pts.toFixed(0)}</span> pts in our scoring
+        &middot; <span class="num">${top.vorp.toFixed(0)}</span> over replacement
+        ${top.p.ecr != null ? `&middot; consensus #${top.p.ecr.toFixed(0)}` : ""}</div>
+      <ul class="why">${(top.reasons.length ? top.reasons : ["Best surplus on the board right now"])
+        .map(r => `<li>${esc(r)}</li>`).join("")}</ul>`;
+  }
+  document.getElementById("alts").innerHTML = cands.slice(1,5).map(x => `
+    <div class="alt">${chip(x.p.pos)}<span class="nm">${esc(x.p.name)}</span>
+      <span class="sp num">+${x.surplus.toFixed(0)}</span></div>`).join("");
+
+  // roster slots
+  const have = {}; mine().forEach(p => (have[p.pos] = have[p.pos]||[]).push(p));
+  const slots = [];
+  for(const pos in STARTERS){
+    for(let i=0;i<STARTERS[pos];i++){
+      const p = (have[pos]||[])[i];
+      slots.push(`<div class="slot ${p?"filled":""}"><b>${pos}</b> ${p ? esc(p.name) : "&mdash;"}</div>`);
+    }
+  }
+  const flexTaken = FLEXPOS.flatMap(pos => (have[pos]||[]).slice(STARTERS[pos]));
+  slots.push(`<div class="slot ${flexTaken[0]?"filled":""}"><b>FLEX</b> ${flexTaken[0]?esc(flexTaken[0].name):"&mdash;"}</div>`);
+  const benchN = mine().length - Object.keys(STARTERS).reduce((s,k)=>s+Math.min((have[k]||[]).length,STARTERS[k]),0) - (flexTaken[0]?1:0);
+  slots.push(`<div class="slot"><b>BN</b> ${Math.max(0,benchN)}/${BENCH}</div>`);
+  document.getElementById("roster").innerHTML = slots.join("");
+
+  renderTable(cands, byPos);
+  document.getElementById("footnote").textContent = META.footnote;
+}
+
+function renderTable(cands, byPos){
+  const thead = document.getElementById("thead"), tbody = document.getElementById("tbody");
+  if(state.view === "edge"){
+    thead.innerHTML = `<tr><th class="l">Player</th><th class="l">Pos</th><th>Our pts</th>
+      <th>Consensus</th><th>Gap</th><th>Consensus rank</th><th class="l">Read</th><th></th></tr>`;
+    const rows = P.slice().filter(p => Math.abs(p.delta) > 4)
+      .sort((a,b) => Math.abs(b.delta) - Math.abs(a.delta)).slice(0,60);
+    tbody.innerHTML = rows.map(p => `
+      <tr class="${state.drafted[p.name]?"gone":""} ${state.drafted[p.name]==="me"?"mine":""}">
+        <td class="l">${esc(p.name)}</td><td class="l">${chip(p.pos)}</td>
+        <td class="num">${p.pts.toFixed(0)}</td><td class="num">${p.cons.toFixed(0)}</td>
+        <td class="num ${gapClass(p.delta)}">${gapText(p.delta)}</td>
+        <td class="num">${p.ecr!=null?"#"+p.ecr.toFixed(0):"\u2014"}</td>
+        <td class="l flagcell">${p.delta>0
+          ? '<span class="flag value">Undervalued here</span>'
+          : '<span class="flag reach">Overvalued here</span>'}</td>
+        <td><button class="mark" data-n="${esc(p.name)}" title="Mark drafted">&times;</button></td>
+      </tr>`).join("");
+    return;
+  }
+
+  thead.innerHTML = `<tr><th class="l">Player</th><th class="l">Pos</th><th>Our pts</th>
+    <th>VORP</th><th>Surplus</th><th>Gap</th><th>Lasts to next</th><th class="l">Flag</th><th></th></tr>`;
+  const shown = cands.slice(0, 90);
+  let lastPos = null, html = "";
+  shown.forEach(x => {
+    const p = x.p;
+    const flags = [];
+    if(x.cliff) flags.push('<span class="flag cliff">Tier cliff</span>');
+    if(p.delta > 12) flags.push('<span class="flag value">Value</span>');
+    if(p.delta < -8) flags.push('<span class="flag reach">Reach</span>');
+    html += `<tr>
+      <td class="l">${esc(p.name)}</td><td class="l">${chip(p.pos)}</td>
+      <td class="num">${p.pts.toFixed(0)}</td>
+      <td class="num">${x.vorp.toFixed(0)}</td>
+      <td class="num"><b>${x.surplus>0?"+":""}${x.surplus.toFixed(0)}</b></td>
+      <td class="num ${gapClass(p.delta)}">${gapText(p.delta)}</td>
+      <td class="num">${(x.avail*100).toFixed(0)}%</td>
+      <td class="l flagcell">${flags.join(" ")}</td>
+      <td><button class="mark" data-n="${esc(p.name)}" title="Mark drafted">&times;</button></td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+/* ---------- interaction ---------- */
+function markDrafted(name, who){
+  if(!name) return;
+  state.drafted[name] = who;
+  state.pick = Math.max(state.pick + 1, 1);
+  document.getElementById("pick").value = state.pick;
+  save(); render();
+}
+document.getElementById("search").addEventListener("keydown", e => {
+  if(e.key !== "Enter") return;
+  const q = e.target.value.trim().toLowerCase();
+  if(!q) return;
+  const hit = alive().find(p => p.name.toLowerCase().includes(q));
+  if(hit){ markDrafted(hit.name, state.mineMode ? "me" : "other"); e.target.value = ""; }
+});
+document.getElementById("mine").addEventListener("click", e => {
+  state.mineMode = !state.mineMode;
+  e.target.textContent = state.mineMode ? "Enter marks as MY pick" : "Enter marks as OTHER team";
+  e.target.style.borderColor = state.mineMode ? "var(--accent)" : "var(--line)";
+  save();
+});
+document.addEventListener("click", e => {
+  const b = e.target.closest(".mark");
+  if(b) markDrafted(b.dataset.n, "other");
+});
+["slot","pick"].forEach(id => document.getElementById(id).addEventListener("input", e => {
+  state[id] = Math.max(1, parseInt(e.target.value || "1", 10)); save(); render();
+}));
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(o => o.setAttribute("aria-selected", String(o === t)));
+  state.view = t.dataset.view; save(); render();
+}));
+document.getElementById("reset").addEventListener("click", () => {
+  if(!confirm("Clear every pick and start over?")) return;
+  state.drafted = {}; state.pick = 1; save();
+  document.getElementById("pick").value = 1; render();
+});
+
+document.getElementById("slot").value = state.slot;
+document.getElementById("pick").value = state.pick;
+document.getElementById("mine").textContent = state.mineMode ? "Enter marks as MY pick" : "Enter marks as OTHER team";
+document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === state.view)));
+render();
+</script>
