@@ -32,6 +32,13 @@ An unlabelled claim is unverified.
   all, in either direction. *doc, 2026-08-24.*
 - **No history.** A deleted league is gone and the API cannot recover it. Snapshot
   before making changes. *asserted.*
+- **`settings` is a flat int map with undocumented enums.** `waiver_type`,
+  `waiver_day_of_week`, `playoff_type` and friends come back as bare integers with no
+  labels. Guessing them is how a migration silently ports the wrong waiver system —
+  read the value off the Sleeper UI instead. *verified 2026-08-25 (snapshot).*
+- **The league object carries `previous_league_id`.** A returning league chains
+  backwards through it; prior-season history lives there and does not migrate.
+  *verified 2026-08-25 (snapshot).*
 
 ## Scoring translation
 
@@ -44,6 +51,19 @@ An unlabelled claim is unverified.
   status `unportable` in the diff — they need a decision, not an edit. *doc.*
 - **2-point conversions are one combined category in Yahoo** (stat id 16) where
   Sleeper splits pass/rush/rec. One Yahoo value has to cover all three. *doc.*
+- **The split-category collapse is only lossy if the values differ.** Check the Sleeper
+  values before treating a collapse as a rule change — in this league all three 2-pt
+  values are 2, so the combined Yahoo category is exact and there is nothing to tell
+  the league. *verified 2026-08-25 (snapshot).*
+- **`unmapped` is a claim about our table, not about Yahoo.** `fgm_50_59` and
+  `fgm_60p` surfaced as unmapped on the first real pull, but Yahoo is believed to have
+  a 50+ FG category — that makes it a `mapping.py` omission, not an unportable rule.
+  Check Yahoo's catalogue before recording anything unmapped as a lost rule.
+  *asserted 2026-08-25 — the Yahoo side is unconfirmed until `verify-mapping` runs.*
+- **`verify-mapping` only checks the ids we already have.** It cannot tell you about
+  Yahoo categories absent from `CANON`, so it will not catch an omission like the 50+
+  FG bucket. Coverage in the other direction needs eyeballing the catalogue.
+  *verified 2026-08-25 (read the command's source).*
 
 ## FantasyPros
 

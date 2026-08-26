@@ -5,7 +5,7 @@
 | **Covers** | How a scoring rule travels from Sleeper to Yahoo, and everything that can go wrong on the way |
 | **Code** | `src/ff/scoring/` (mapping → normalize → diff → report), `src/ff/yahoo/client.py` (flatten) |
 | **Docs** | `docs/league-migration.md` (runbook) · `docs/yahoo-setup.md` (auth) |
-| **Last verified** | 2026-08-24 |
+| **Last verified** | 2026-08-25 |
 
 > **A map, not a store.** Values live in the snapshots; status lives in the season
 > index. Every claim below carries a confidence label.
@@ -59,6 +59,14 @@ because that case is a real collection and merging would keep only the last elem
 which would silently drop every stat modifier but one. *verified 2026-08-24 (a test
 exists specifically for this; it caught the bug during the build).*
 
+**The mapping is only checked in one direction.** `verify-mapping` walks `CANON` and
+asks Yahoo whether each id still exists. It never asks the reverse question — *which
+Yahoo categories are missing from `CANON`* — so a category we simply never modelled is
+invisible to it, and shows up instead as a Sleeper key in `.unmapped`. Reading an
+unmapped key as "Yahoo can't do this" is therefore a mistake: it means *our table*
+doesn't know it. *verified 2026-08-25 (source read; `fgm_50_59`/`fgm_60p` are the live
+example).*
+
 **Unmapped ≠ absent.** Anything the table doesn't know is collected into `.unmapped` and
 printed separately, never dropped. If a scoring rule seems to have vanished, look at the
 unmapped section before suspecting the diff. *verified 2026-08-24.*
@@ -77,6 +85,12 @@ see `docs/league-migration.md`:
 - trade deadline and review period
 - playoff team count, start week, bye structure
 - keeper/dynasty rules — Yahoo's support here is much thinner than Sleeper's
+
+Sleeper exposes all of these as a flat map of bare integers under `settings`, with
+undocumented enums and no labels. The values are transcribed per-season into
+`seasons/<year>/migration/non-scoring-checklist.md` with unconfirmed enums marked as
+such; resolving one means reading the Sleeper UI, not inferring from the number.
+*verified 2026-08-25.*
 
 ## 4. Decisions this thread constrains
 

@@ -58,6 +58,8 @@ everything below is a consumer of it.
 | Operation | What it answers | Inputs | Status |
 |---|---|---|---|
 | Scoring change-list | What to change in Yahoo to match Sleeper | both platforms' settings | **built** (`ff diff --out`) |
+| Mapping coverage check | "Which Yahoo stat categories does `CANON` not model?" — the reverse of `verify-mapping`, which only validates ids we already have | Yahoo stat-category catalogue + `mapping.py` | idea |
+| Non-scoring settings diff | "Which league settings besides scoring still don't match?" — currently a hand-maintained checklist | both platforms' settings | idea |
 | Season recap | End-of-year writeup for the league | final standings + weekly records | idea |
 | Rule-change impact | "If we changed X, who would it have helped last year?" | historical stats + candidate scoring | idea |
 

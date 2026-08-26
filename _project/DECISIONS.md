@@ -33,4 +33,4 @@ gets a line here, so next season's diff doesn't re-open the question.*
 
 | Sleeper rule | Resolution | Date | Announced to league? |
 |---|---|---|---|
-| | | | |
+| `pass_2pt` / `rush_2pt` / `rec_2pt`, all = 2 | **No loss.** Yahoo's single combined 2-pt category set to 2 reproduces Sleeper exactly, because all three Sleeper values are equal. Nothing to announce. | 2026-08-25 | n/a — no change in outcome |
