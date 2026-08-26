@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..yahoo.client import flatten
-from .mapping import by_sleeper_key, by_yahoo_id
+from .mapping import CANON, by_sleeper_key, by_yahoo_id
 
 
 @dataclass
@@ -56,6 +56,56 @@ def normalize_yahoo(settings_payload: dict[str, Any]) -> NormalizedScoring:
         else:
             out.unmapped[f"stat_id:{stat_id}"] = points
     return out
+
+
+# Yahoo's UI labels are not unique on their own -- "Interception" is a thrown
+# pick under Offense and a defensive takeaway under Defense/Special Teams -- so
+# the lookup is keyed on the label plus the section it appeared under.
+_BY_UI_LABEL: dict[str, list[str]] = {}
+for _c in CANON:
+    if _c.yahoo_ui:
+        _BY_UI_LABEL.setdefault(_c.yahoo_ui, []).append(_c.key)
+
+_SECTION_GROUPS = {
+    "Offense": {"passing", "rushing", "receiving", "misc"},
+    "Kickers": {"kicking"},
+    "Defense/Special Teams": {"defense"},
+}
+_GROUP_OF = {c.key: c.group for c in CANON}
+
+
+def normalize_yahoo_ui(payload: dict[str, Any]) -> NormalizedScoring:
+    """Accepts a snapshot written by ff.yahoo.ui_import.parse_ui_dump()."""
+    out = NormalizedScoring(platform="yahoo", source={"_source": payload.get("_source")})
+    for row in payload.get("scoring", []):
+        label = row.get("label")
+        section = row.get("section", "")
+        try:
+            points = float(row["points"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        candidates = _BY_UI_LABEL.get(label, [])
+        allowed = _SECTION_GROUPS.get(section)
+        if allowed:
+            candidates = [k for k in candidates if _GROUP_OF.get(k) in allowed] or candidates
+
+        if candidates:
+            # One Yahoo row can legitimately feed several canonical keys: the
+            # single 2-Point Conversions category covers Sleeper's separate
+            # pass/rush/rec keys. Every candidate gets the same value.
+            for key in candidates:
+                out.values[key] = points
+        else:
+            out.unmapped[f"{section}: {label}" if section else label] = points
+    return out
+
+
+def normalize_yahoo_any(payload: dict[str, Any]) -> NormalizedScoring:
+    """Dispatch on how the snapshot was obtained: commissioner UI or the API."""
+    if payload.get("_source") == "yahoo-commissioner-ui":
+        return normalize_yahoo_ui(payload)
+    return normalize_yahoo(payload)
 
 
 def _find_stat_modifiers(node: Any) -> list[Any]:

@@ -23,6 +23,25 @@ uv run ff yahoo pull                       # snapshot Yahoo league settings
 uv run ff diff --out docs/change-list.md   # what to change in Yahoo
 ```
 
+### If Yahoo has not granted you API access
+
+Yahoo gates the Fantasy Sports API behind an approval process
+(<https://sports.yahoo.com/developer/access/>). Without it, `ff yahoo pull` and
+`verify-mapping` cannot run: the authorize call returns `invalid_scope`.
+
+The settings are still readable from the commissioner UI. Scrape the scoring and
+settings tables off the league's *Scoring & Settings* page into JSON, then:
+
+```bash
+uv run ff yahoo import-ui scraped.json --league-id <your league id>
+uv run ff diff --out change-list.md
+```
+
+`import-ui` writes into the same snapshot slot `ff yahoo pull` uses, so the API
+path drops in unchanged if access is ever granted. It matches on **Yahoo's UI
+labels, not stat ids** — the ids in `ff/scoring/mapping.py` cannot be verified
+without the API, so nothing depends on them.
+
 `ff diff` reads the newest snapshots in `data/snapshots/`; add `--live` to pull
 fresh from both platforms instead.
 

@@ -26,6 +26,28 @@ An unlabelled claim is unverified.
 - **League keys are season-scoped** (`449.l.123456`). Last season's key does not
   resolve. *doc.*
 
+- **Yahoo's app-creation page no longer offers a Fantasy Sports permission.** The only
+  API Permissions on `developer.yahoo.com/apps/create` are OpenID Connect and TW
+  Auction; the old "Fantasy Sports → Read/Write" checkbox is gone. Create the app with
+  both unticked. *verified 2026-08-25 (observed on the page).*
+- **The Fantasy Sports API is gated behind an approval application.** This is the
+  reason the permission checkbox is gone. Apply at
+  <https://sports.yahoo.com/developer/access/> — product description, data needed,
+  estimated user count. Read-only by default; write needs justification. No published
+  turnaround, and Yahoo says thin submissions are closed without correspondence.
+  *verified 2026-08-25 (read the access page).*
+- **Without that approval the OAuth flow fails in two different ways, neither obvious.**
+  With no `scope` parameter the consent screen auto-approves, issues a token with
+  `scope: null`, and every fantasy call 401s. With `scope=fspt-r` the authorize
+  redirect returns `error=invalid_scope` before any token is issued. The second
+  failure is the honest one, so `ff/yahoo/auth.py` now always sends `SCOPE = "fspt-r"`
+  — a loud failure beats a token that looks valid and isn't.
+  *verified 2026-08-25 (observed both).*
+- **Choose Confidential Client**, not Public — `ff.yahoo.auth` exchanges the code with
+  a client secret. *verified 2026-08-25 (read the source).*
+- **There is no secret-rotation button.** The app page shows the Client Secret
+  permanently but offers only Delete App. *verified 2026-08-25 (observed).*
+
 ## Sleeper API
 
 - **Public and unauthenticated**, and read-only outright — there is no write path at

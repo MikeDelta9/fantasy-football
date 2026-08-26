@@ -13,11 +13,28 @@ your login only approves one. Ten minutes, once.
    - **Redirect URI (Callback Domain)**: `https://localhost:8099/callback`
      Yahoo rejects plain `http://` here. The URL never has to resolve — the flow
      below reads the code out of the address bar after the page fails to load.
-   - **API Permissions**: tick **Fantasy Sports**, then **Read/Write**
-     (Read/Write buys you roster and transaction writes; it does *not* unlock
-     league-settings writes — those don't exist. Read alone is enough for the
-     migration diff.)
-3. Create it. Copy the **Client ID (Consumer Key)** and **Client Secret**.
+   - **OAuth Client Type**: **Confidential Client** — the token exchange in
+     `ff.yahoo.auth` sends a client secret, which is what this setting means.
+   - **API Permissions**: leave everything unticked. **verified (2026-08-25)** —
+     Yahoo no longer offers a Fantasy Sports permission on this page; the only
+     options are OpenID Connect and TW Auction. Tick neither. OpenID Connect is
+     identity, not fantasy data, and switching it on changes the token flow
+     (nonce / `id_token`) in ways `ff yahoo login` does not handle.
+
+     Historic note: this step used to read "tick Fantasy Sports → Read/Write".
+     That checkbox is gone. Read/Write never unlocked league-settings writes
+     anyway — those don't exist.
+3. Create it. Copy the **Client ID (Consumer Key)** and **Client Secret** from the
+   app page. Both stay visible on that page afterwards, but there is no rotate
+   button — only **Delete App** and start over.
+
+### If Fantasy calls come back 401/403
+
+`YahooAuth.authorize_url()` sends no `scope` parameter, because scope used to come
+from the app's permissions — the ones this page no longer lets you set. Yahoo
+appears to grant Fantasy read to apps created this way. **asserted** — if
+`ff yahoo leagues` returns 401 or 403, append `&scope=fspt-r` to the authorize URL
+in `src/ff/yahoo/auth.py` and re-run `ff yahoo login`.
 
 ## 2. Put them in .env
 

@@ -17,6 +17,26 @@ Two things that share a codebase:
    decisions, and commissioner admin. Open-ended by design; see
    `_project/operations/REGISTRY.md`.
 
+## Platform history
+
+The league has been round-tripped, not newly built:
+
+**Yahoo (original) → ESPN → Sleeper → Yahoo (2026, reactivating the original league).**
+
+At each move the commissioner re-entered scoring by hand to match the *original Yahoo*
+settings as closely as the new platform allowed. So Sleeper's scoring is best understood
+as a copy-of-a-copy of the Yahoo original, and the 2026 target is that same original
+Yahoo league with its settings still in place — not an empty league.
+
+Two consequences:
+
+- **The diff is a drift check, not a port.** The expectation is near-zero actionable
+  rows. A large diff means something is wrong with the pull or the mapping, not that
+  there is a lot of work to do.
+- **A non-zero row is ambiguous** — it may be Sleeper drift introduced during an
+  earlier hand re-entry, or a Yahoo-side default that changed between seasons. Each
+  row needs a direction decision; see the season index open questions.
+
 ## Platforms
 
 | Platform | Auth | Read | Write |

@@ -20,6 +20,13 @@ from ..config import TOKEN_FILE, settings
 AUTHORIZE_URL = "https://api.login.yahoo.com/oauth2/request_auth"
 TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token"
 
+# Yahoo's app-registration page no longer exposes a Fantasy Sports permission, so
+# scope cannot come from the app config and must be requested here. Without it the
+# consent screen auto-approves with an empty scope and every fantasy call 401s.
+# fspt-r is read-only, which is all the migration diff needs; fspt-w would add
+# roster/transaction writes and still could not write league settings.
+SCOPE = "fspt-r"
+
 
 class YahooAuth:
     def __init__(self) -> None:
@@ -44,6 +51,7 @@ class YahooAuth:
         return (
             f"{AUTHORIZE_URL}?client_id={self.client_id}"
             f"&redirect_uri={self.redirect_uri}&response_type=code&language=en-us"
+            f"&scope={SCOPE}"
         )
 
     def login(self, open_browser: bool = True) -> dict[str, Any]:

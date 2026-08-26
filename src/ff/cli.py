@@ -12,7 +12,7 @@ from rich.console import Console
 from .config import SNAPSHOTS, settings
 from .scoring.diff import diff_scoring
 from .scoring.mapping import CANON
-from .scoring.normalize import normalize_sleeper, normalize_yahoo
+from .scoring.normalize import normalize_sleeper, normalize_yahoo_any
 from .scoring.report import print_diff, to_markdown
 
 app = typer.Typer(help="Sleeper -> Yahoo league migration and fantasy football tooling.")
@@ -108,6 +108,26 @@ def yahoo_pull(league_key: str = typer.Option(None, help="Defaults to YAHOO_LEAG
     _save("yahoo-settings", payload)
 
 
+@yahoo_app.command("import-ui")
+def yahoo_import_ui(
+    dump: Path = typer.Argument(..., help="JSON scraped from the settings page"),
+    league_id: str = typer.Option(None, help="Yahoo league ID, for the record"),
+) -> None:
+    """Snapshot Yahoo scoring read from the commissioner UI instead of the API.
+
+    Yahoo gates the Fantasy API behind an approval process, so this is the only
+    way in until that is granted. Writes to the same snapshot slot `pull` uses.
+    """
+    from .yahoo.ui_import import parse_ui_dump
+
+    payload = parse_ui_dump(json.loads(dump.read_text()), league_id=league_id)
+    path = _save("yahoo-settings", payload)
+    console.print(
+        f"[green]{len(payload['scoring'])} scoring rows[/green] -> {path}\n"
+        "[dim]Read from the UI, not the API -- re-run after applying any change.[/dim]"
+    )
+
+
 @yahoo_app.command("verify-mapping")
 def yahoo_verify_mapping() -> None:
     """Check ff.scoring.mapping's hardcoded stat ids against Yahoo's own catalogue."""
@@ -176,7 +196,7 @@ def diff_cmd(
         sleeper_raw = sleeper_league.get("scoring_settings", sleeper_league)
         yahoo_raw = json.loads(_latest("yahoo-settings").read_text())
 
-    result = diff_scoring(normalize_sleeper(sleeper_raw), normalize_yahoo(yahoo_raw))
+    result = diff_scoring(normalize_sleeper(sleeper_raw), normalize_yahoo_any(yahoo_raw))
     print_diff(result, show_matches=show_matches)
 
     if out:

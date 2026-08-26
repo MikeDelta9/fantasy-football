@@ -17,11 +17,15 @@ class Change:
     group: str
     source_value: float | None
     target_value: float | None
-    status: str  # match | differs | missing_in_target | missing_in_source | unportable
+    status: str  # match | no_effect | differs | missing_in_target
+    #            | missing_in_source | unportable
 
     @property
     def needs_action(self) -> bool:
-        return self.status != "match"
+        # no_effect is reported but never actioned: a category worth 0 points on
+        # one platform and absent on the other scores identically either way.
+        # Treating those as work items buries the rows that are real.
+        return self.status not in ("match", "no_effect")
 
 
 @dataclass
@@ -50,14 +54,18 @@ def diff_scoring(source: NormalizedScoring, target: NormalizedScoring) -> Scorin
         sv = source.values.get(key)
         tv = target.values.get(key)
 
-        if cat and cat.yahoo is None and target.platform == "yahoo" and sv is not None:
+        # "Yahoo cannot express this" is a claim about the category, not about
+        # which snapshot we happen to hold. A category readable in the
+        # commissioner UI is portable even with no verified stat id.
+        yahoo_has_it = cat is not None and (cat.yahoo is not None or cat.yahoo_ui is not None)
+        if cat and not yahoo_has_it and target.platform == "yahoo" and sv is not None:
             status = "unportable"
         elif sv is not None and tv is not None:
             status = "match" if abs(sv - tv) < 1e-9 else "differs"
         elif sv is not None:
-            status = "missing_in_target"
+            status = "no_effect" if sv == 0 else "missing_in_target"
         else:
-            status = "missing_in_source"
+            status = "no_effect" if tv == 0 else "missing_in_source"
 
         result.changes.append(
             Change(

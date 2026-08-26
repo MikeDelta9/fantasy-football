@@ -14,6 +14,7 @@ from .diff import Change, ScoringDiff
 
 _STYLE = {
     "match": "dim",
+    "no_effect": "dim",
     "differs": "yellow",
     "missing_in_target": "red",
     "missing_in_source": "cyan",
@@ -22,6 +23,7 @@ _STYLE = {
 
 _HUMAN = {
     "match": "OK",
+    "no_effect": "NO EFFECT (0)",
     "differs": "CHANGE",
     "missing_in_target": "ADD",
     "missing_in_source": "REMOVE?",
@@ -54,7 +56,7 @@ def print_diff(diff: ScoringDiff, show_matches: bool = False) -> None:
 
     console.print(table)
 
-    matched = len(diff.by_status("match"))
+    matched = len(diff.by_status("match")) + len(diff.by_status("no_effect"))
     console.print(
         f"[dim]{matched} categories already match. "
         f"{len(diff.actionable)} need attention.[/dim]"
@@ -106,6 +108,17 @@ def to_markdown(diff: ScoringDiff) -> str:
             f"| {c.label} | {_fmt(c.source_value)} | {_fmt(c.target_value)} |" for c in changes
         ]
         lines.append("")
+
+    zeros = diff.by_status("no_effect")
+    if zeros:
+        lines += [
+            f"## Scored zero on one side, absent on the other -- no action ({len(zeros)})",
+            "",
+            "These score identically whether or not Yahoo lists the category.",
+            "",
+            ", ".join(c.label for c in zeros),
+            "",
+        ]
 
     matched = diff.by_status("match")
     if matched:

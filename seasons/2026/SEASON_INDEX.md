@@ -1,6 +1,8 @@
 # 2026 Season — Index
 
-**Platform:** Yahoo (migrated from Sleeper, preseason 2026)
+**Platform:** Yahoo (reactivating the league's original Yahoo home, preseason 2026)
+**Path travelled:** Yahoo (original) → ESPN → Sleeper → Yahoo. Scoring was re-entered by
+hand at each hop to match the Yahoo original, so this diff is a **drift check**, not a port.
 **League:** DeBrey's League · **Teams:** 12 · **Scoring:** 0.5 PPR, 6-pt pass TD (see migration/)
 **Last updated:** 2026-08-25
 
@@ -15,25 +17,25 @@
 | Phase | Status | Notes |
 |---|---|---|
 | Tooling scaffold | ✅ done | `ff` CLI, tests passing, 2026-08-24 |
-| Credentials | 🟡 partial | Sleeper ID set; Yahoo dev app + FantasyPros key outstanding |
+| Credentials | 🟡 partial | Dev app + OAuth wired. Yahoo **API access needs their approval** — not applied for yet; the UI-scrape path makes it non-blocking. FantasyPros key outstanding |
 | Sleeper snapshot | ✅ done | `sleeper-league-20260826-003127.json`, 2026-08-25 |
-| Yahoo league created | ⬜ not started | |
-| Mapping verified | ⬜ not started | `ff yahoo verify-mapping` |
-| Scoring diff produced | ⬜ not started | `ff diff --out seasons/2026/migration/change-list.md` |
-| Scoring applied in Yahoo | ⬜ not started | by hand; **must land before week 1** |
-| Diff re-run clean | ⬜ not started | zero actionable rows |
-| Non-scoring settings ported | ⬜ not started | rosters, waivers, playoffs — see migration/ |
-| League informed of changes | ⬜ not started | any unportable rule needs saying out loud |
+| Yahoo league reactivated | ✅ done | already renewed: **ID# <league-id>**, auto-renew on, 12 teams, settings carried forward |
+| Mapping verified | ⚪ n/a for now | needs the API. The UI path matches on labels, not stat ids, so no unverified id is trusted |
+| Scoring diff produced | ✅ done | 2026-08-25 — 31 exact matches, 1 real difference, 3 accepted exceptions |
+| Scoring applied in Yahoo | ✅ nothing to apply | all three disagreements resolved in Yahoo's favour — the league is already configured correctly |
+| Diff re-run clean | ✅ as clean as it gets | the 5 remaining rows are the accepted exceptions in DECISIONS.md, not work |
+| Non-scoring settings compared | ✅ done | **all settings compared 2026-08-25** — scoring, season/playoffs, trades, waivers, roster slots. Roster is an exact match. All settings changes applied and verified 2026-08-25 (veto votes 6, postponed-game status Yes, trade deadline wk 11). Open decision: Can't Cut List |
+| League informed of changes | ⬜ not started | 3 real changes to announce: INT -1→-2, 60+ FG 6→5, forced fumbles gone |
 | Draft | ⬜ not started | |
 
 ## Key dates
 
 | Date | What |
 |---|---|
-| _TBD_ | Draft |
+| **Sun Aug 30, 9:30pm EDT** | **Live standard draft** — 1 min/pick |
 | _TBD_ | NFL week 1 — **Yahoo locks most settings** |
-| _TBD_ | Trade deadline |
-| _TBD_ | Playoffs start |
+| Nov 28, 2026 | Trade deadline |
+| Week 15 | Playoffs — 6 teams, weeks 15-17, ends Mon Jan 4 |
 
 ## Weeks
 
@@ -45,14 +47,30 @@
 
 | Question | Blocks | Raised |
 |---|---|---|
-| Which Sleeper scoring rules have no Yahoo equivalent, and what replaces them? | scoring apply | 2026-08-24 |
-| 2-pt conversions: Yahoo has one combined category, Sleeper splits pass/rush/rec (all =2) | scoring apply | 2026-08-25 |
-| Forced fumbles (1 pt) have no Yahoo equivalent — drop, or absorb into another category? | scoring apply | 2026-08-25 |
-| `fgm_50_59`/`fgm_60p` unmapped — Yahoo bug in `mapping.py` or genuinely absent? | scoring diff | 2026-08-25 |
+| Sleeper ran a losers bracket (`loser_bracket_id` set); Yahoo has no consolation-bracket setting — does the toilet bowl matter? | league announcement | 2026-08-25 |
+| 6 of 12 teams / 3 rounds gives seeds 1-2 a week-15 bye — is that the intended bracket? | draft | 2026-08-25 |
+| Yahoo gated the Fantasy API behind an approval form with no published turnaround — apply and wait, or read the settings out of the commissioner UI instead? | the entire Yahoo pull | 2026-08-25 |
 | `draft_rounds` is 3 against a 16-slot roster — misconfigured on Sleeper? | draft | 2026-08-25 |
 
 ## Resume here
 
-**Next step:** register the Yahoo dev app (`docs/yahoo-setup.md`), create the 2026
-Yahoo league in the UI, then `ff yahoo login` → `ff yahoo leagues` → `ff yahoo pull`.
-The Sleeper side is captured and safe; everything now blocks on the Yahoo target existing.
+**Scoring is done — nothing to apply in Yahoo before the draft.** The diff found 31
+exact matches and one real difference (interceptions), resolved in Yahoo's favour.
+See `_project/DECISIONS.md` for the three accepted exceptions.
+
+**Next steps, in order:**
+1. Tell the league the 3 real changes (INT -2, 60+ FG pays 5, no forced-fumble points)
+   — draft is Sunday, so this wants saying before then.
+2. Apply for Yahoo Fantasy API access at <https://sports.yahoo.com/developer/access/>.
+   Not needed for scoring any more, but in-season roster/transaction tooling wants it.
+3. FantasyPros key, then draft prep.
+
+_Superseded — kept for the record:_ register the Yahoo dev app (`docs/yahoo-setup.md`) — `ff status` shows
+`YAHOO_CLIENT_ID`/`SECRET` still empty, and nothing Yahoo-side can run without them.
+Then renew the original league for 2026 in the Yahoo UI (renew, don't create — a fresh
+league starts on Yahoo defaults and throws away the settings this whole exercise is
+trying to preserve), then `ff yahoo login` → `ff yahoo leagues` → `ff yahoo pull` →
+`ff yahoo verify-mapping` → `ff diff`.
+
+The Sleeper side is captured and safe. Expect the diff to be small; if it isn't,
+suspect the mapping table before believing the numbers.
