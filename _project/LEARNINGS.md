@@ -35,7 +35,8 @@ An unlabelled claim is unverified.
   <https://sports.yahoo.com/developer/access/> — product description, data needed,
   estimated user count. Read-only by default; write needs justification. No published
   turnaround, and Yahoo says thin submissions are closed without correspondence.
-  *verified 2026-08-25 (read the access page).*
+  *verified 2026-08-25 (read the access page).* **Applied 2026-08-25** requesting
+  read/write, justified as single-league and self-directed; outcome unknown.
 - **Without that approval the OAuth flow fails in two different ways, neither obvious.**
   With no `scope` parameter the consent screen auto-approves, issues a token with
   `scope: null`, and every fantasy call 401s. With `scope=fspt-r` the authorize

@@ -112,3 +112,19 @@ the season index. This file is the story, not the state.
   expose true selected values where the summary page only renders a string.
 - Still no Fantasy API access — everything above was browser automation against the
   commissioner UI, not the API.
+
+## 2026-08-25 (cont.) — API access requested, repo published
+
+- Submitted the Yahoo Fantasy API access application. Requested **read/write**
+  (`fspt-w`), justified as one league, one user, self-directed roster writes only.
+  No published turnaround; Yahoo closes thin submissions without correspondence.
+- Published the repo at <https://github.com/MikeDelta9/fantasy-football> so the
+  application could point at real source rather than a private league URL.
+  Deliberately under a **personal** GitHub account, kept separate from work.
+- Before publishing: rewrote all commit authorship off the work email onto
+  `debreym@gmail.com`, scrubbed the Yahoo league ID out of every tracked file, and
+  confirmed no secrets in any commit. `.env`, `.yahoo_token.json` and snapshots were
+  already gitignored.
+- **FantasyPros is not an alternative route to Yahoo.** It serves player-level data
+  (projections, rankings, ADP); their Yahoo league sync runs on their own approved
+  credentials inside their own product and is not re-exposed through their API.

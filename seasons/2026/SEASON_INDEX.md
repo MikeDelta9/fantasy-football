@@ -17,7 +17,7 @@ hand at each hop to match the Yahoo original, so this diff is a **drift check**,
 | Phase | Status | Notes |
 |---|---|---|
 | Tooling scaffold | ✅ done | `ff` CLI, tests passing, 2026-08-24 |
-| Credentials | 🟡 partial | Dev app + OAuth wired. Yahoo **API access needs their approval** — not applied for yet; the UI-scrape path makes it non-blocking. FantasyPros key outstanding |
+| Credentials | 🟡 partial | Dev app + OAuth wired. **Yahoo API access applied for 2026-08-25** — awaiting their decision, no published turnaround. Requested read/write (`fspt-w`). Not blocking: the UI-import path covers the migration. FantasyPros key outstanding |
 | Sleeper snapshot | ✅ done | `sleeper-league-20260826-003127.json`, 2026-08-25 |
 | Yahoo league reactivated | ✅ done | already renewed: **ID# <league-id>**, auto-renew on, 12 teams, settings carried forward |
 | Mapping verified | ⚪ n/a for now | needs the API. The UI path matches on labels, not stat ids, so no unverified id is trusted |
@@ -61,8 +61,9 @@ See `_project/DECISIONS.md` for the three accepted exceptions.
 **Next steps, in order:**
 1. Tell the league the 3 real changes (INT -2, 60+ FG pays 5, no forced-fumble points)
    — draft is Sunday, so this wants saying before then.
-2. Apply for Yahoo Fantasy API access at <https://sports.yahoo.com/developer/access/>.
-   Not needed for scoring any more, but in-season roster/transaction tooling wants it.
+2. ~~Apply for Yahoo Fantasy API access~~ — **submitted 2026-08-25**, awaiting Yahoo.
+   If granted with write, change `SCOPE` in `src/ff/yahoo/auth.py` from `fspt-r` to
+   `fspt-w` and re-run `ff yahoo login`.
 3. FantasyPros key, then draft prep.
 
 _Superseded — kept for the record:_ register the Yahoo dev app (`docs/yahoo-setup.md`) — `ff status` shows
